@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>websocket</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <style>
+        div#log {
+            width: 500px;
+            border: 2px solid black;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 0 auto;
+            height: 300px;
+        }
+        .sendCtrl {
+            display: flex;
+            width: 400px;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+        }
+        .sendCtrl button {
+            width: 150px;
+            margin-left: 10px;
+        }
+        .form-control {
+        }
+    </style>
+</head>
+<body>
+        <div id="log"></div>
+        <div class="sendCtrl">
+            <input class="form-control" type="text" onfocus="this.value=''" placeholder="Your message here" id="text" />
+            <button class="btn btn-outline-primary"> Send Hello </button>
+        </div>
+
+    <script>
+
+        let name = prompt("What is your name fella?");
+
+        const socket = new WebSocket("ws://localhost:5001");
+        socket.onopen = function(e) {
+           socket.send(JSON.stringify({
+               type: "name",
+               data: name
+           }))
+        } 
+
+        let log = document.getElementById("log");
+        
+        // onmessage lang nghe mess tu server tra ve
+        socket.onmessage = function(e) {
+            console.log(e);
+
+            let json = JSON.parse(e.data)
+            log.innerHTML += json.type + ": " + json.data + "<br/>"
+        }
+
+        document.querySelector('button').onclick = function() {
+            let text = document.getElementById('text').value;
+            // socket.send(text) // send gui du lieu len server
+            socket.send(JSON.stringify({
+                type: "message",
+                data: text
+            }))
+            
+            log.innerHTML += " You: " + text  + "<br/>"
+        }   
+    </script>
+</body>
+</html>
